@@ -1,4 +1,5 @@
 //Imports createEvent from adminModel.js
+const adminModel = require('../models/adminModel');
 const { createEvent } = require('../models/adminModel');
 
 //Adds events when a POST request is received
