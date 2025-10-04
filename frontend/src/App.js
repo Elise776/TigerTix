@@ -23,14 +23,15 @@ function App()
         }
         return res.json();
       })
-            .then((updatedEvent) => {
-            if (!updatedEvent) return;
+    .then((updatedEvent) => 
+    {
+        if (!updatedEvent) return;
 
             setEvents((prevEvents) =>
                 prevEvents.map((event) =>
                     event.id === updatedEvent.id ? updatedEvent : event
                 )
-            );
+        );
 
       })
       .catch((err) => {
@@ -38,16 +39,15 @@ function App()
       });
   };
 
-        /*alert(`Ticket purchased for: ${eventName}`);
-    };
-    */
     return (
         <div className="App">
         <h1>Clemson Campus Events</h1>
         <ul>
         {events.map((event) => (
         <li key={event.id}>
-        {event.name} - {event.date}{' '}
+        {event.name} - {event.date} - Tickets Available:{" "}
+        {event.tickets != null ? event.tickets : 0}
+        {"  "}
         <button onClick={() => buyTicket(event.name)}>Buy
         Ticket</button>
         </li>
