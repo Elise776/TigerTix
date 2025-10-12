@@ -1,26 +1,32 @@
-const sqlite3 = require('sqlite3'); //Imports sql
-const path = require('path');
+const sqlite3 = require("sqlite3");
+const path = require("path");
 
 //Sets the path to the database
-const dataBasePath = path.join(__dirname, '../../shared-db/database.sqlite');
+const dataBasePath = path.join(__dirname, "../../shared-db/database.sqlite");
 
 //Creates the sql database
 const dataBase = new sqlite3.Database(dataBasePath);
 
 //Function to create an event
-function createEvent(name, date, tickets, callback) 
-{
-  //sql query to get name, date, and tickets
-  query = `INSERT INTO events (name, date, tickets) VALUES (?, ?, ?)`;
+function createEvent(name, date, tickets, callback) {
+  const query = `INSERT INTO events (name, date, tickets) VALUES (?, ?, ?)`;
 
-  dataBase.run(query, [name, date, tickets], function () 
-  {
-    //Creates a new event based on info added to the database
-    newEvent = {id: this.lastID, name: name, date: date, tickets: tickets};
+  dataBase.run(query, [name, date, tickets], function (err) {
+    if (err) {
+      console.error("Database insert error:", err);
+      callback(err); // <-- pass the error
+      return;
+    }
+
+    const newEvent = {
+      id: this.lastID,
+      name,
+      date,
+      tickets,
+    };
+
+    callback(null, newEvent); // <-- first argument is err
   });
-
-  //Calls the callback function and passes the new event
-  callback(newEvent);
 }
 
 //Exports the function for other files to use

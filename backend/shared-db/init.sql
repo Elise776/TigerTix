@@ -4,3 +4,7 @@ CREATE TABLE IF NOT EXISTS events (
     date TEXT NOT NULL,
     tickets INTEGER NOT NULL
 );
+
+UPDATE events
+SET tickets = 34
+WHERE id = 1 AND tickets > 0;
