@@ -5,4 +5,4 @@ const router = express.Router();
 router.post('/parse', parseText); 
 router.post('/confirm', confirmBooking);
 
-export default router;
+module.exports = router;
