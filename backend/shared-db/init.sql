@@ -9,11 +9,3 @@ UPDATE events
 SET tickets = 34
 WHERE id = 1 AND tickets > 0;
 
-CREATE TABLE IF NOT EXISTS bookings (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  event_id INTEGER NOT NULL,
-  tickets INTEGER NOT NULL,
-  purchaser TEXT DEFAULT 'guest',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(event_id) REFERENCES events(id)
-);
