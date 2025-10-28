@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS events (
     tickets INTEGER NOT NULL
 );
 
+<<<<<<< HEAD
 CREATE TABLE IF NOT EXISTS bookings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_id INTEGER NOT NULL,
@@ -12,3 +13,9 @@ CREATE TABLE IF NOT EXISTS bookings (
     created_at TEXT NOT NULL,
     FOREIGN KEY(event_id) REFERENCES events(id)
 );
+=======
+UPDATE events
+SET tickets = 34
+WHERE id = 1 AND tickets > 0;
+
+>>>>>>> 6b788a9b6863b52492829155a642e4fa70127179
