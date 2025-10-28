@@ -28,6 +28,55 @@
   color: #61dafb;
 }
 
+.chat-container {
+  margin-top: 40px;
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+  width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chat-box {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: #fff;
+  margin-bottom: 10px;
+}
+
+.chat-message {
+  margin: 5px 0;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.user-msg {
+  background-color: #e6f0ff;
+  text-align: right;
+}
+
+.bot-msg {
+  background-color: #f0fdf4;
+  text-align: left;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px;
+}
+
+.chat-input button {
+  padding: 8px 12px;
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

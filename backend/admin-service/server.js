@@ -1,6 +1,11 @@
+/**
+ * Main entry point for the admin microservice
+ */
 const express = require("express");
 const cors = require("cors");
 const app = express();
+
+//import admin routes
 const routes = require("./routes/adminRoutes");
 app.use(cors());
 app.use(express.json()); //Allows use of json

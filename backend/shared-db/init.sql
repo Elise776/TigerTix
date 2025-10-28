@@ -5,6 +5,10 @@ CREATE TABLE IF NOT EXISTS events (
     tickets INTEGER NOT NULL
 );
 
-UPDATE events
-SET tickets = 34
-WHERE id = 1 AND tickets > 0;
+CREATE TABLE IF NOT EXISTS bookings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id INTEGER NOT NULL,
+    qty INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(event_id) REFERENCES events(id)
+);
