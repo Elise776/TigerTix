@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import VoiceChat from "./components/voiceInterface";
 
 function App() {
   const [events, setEvents] = useState([]);
@@ -124,7 +125,7 @@ function App() {
         ...m,
         {
           role: "bot",
-          text: `✅ Booking successful (qty: ${data.booking.qty}) for "${event}".`,
+          text: `Booking successful (qty: ${data.booking.qty}) for "${event}".`,
         },
       ]);
 
@@ -177,7 +178,7 @@ function App() {
 
       {/* Chatbot */}
       <div className="chat-container">
-        <h2>🎟️ Chat Assistant</h2>
+        <h2>Chat Assistant</h2>
 
         <div
           className="chat-box"
@@ -223,7 +224,7 @@ function App() {
             }}
           >
             <div>
-              <strong>Confirm booking:</strong> {pendingParse.tickets} ×{" "}
+              <strong>Confirm booking:</strong> {pendingParse.tickets} {" "}
               {pendingParse.event}
             </div>
             <div style={{ marginTop: 8 }}>
@@ -234,6 +235,10 @@ function App() {
             </div>
           </div>
         )}
+      </div>
+      {/*Voice Enabled Interface */}
+      <div style={{ marginTop: 40 }}>
+        <VoiceChat />
       </div>
     </div>
   );

@@ -10,4 +10,8 @@ router.post("/parse", parseBookingRequest);
 // POST /api/llm/confirm
 router.post("/confirm", confirmBooking);
 
+//POST /api/llm/voice
+router.post("/voice", parseBookingRequest);
+
+
 module.exports = router;
