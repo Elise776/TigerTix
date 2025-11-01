@@ -228,10 +228,17 @@ function App() {
               {pendingParse.event}
             </div>
             <div style={{ marginTop: 8 }}>
-              <button onClick={handleConfirm} style={{ marginRight: 8 }}>
+              <button
+                onClick={handleConfirm}
+                aria-label="Confirm booking"
+                style={{ marginRight: 8 }}
+              >
                 Confirm Booking
               </button>
-              <button onClick={handleCancel}>Cancel</button>
+              <button onClick={handleCancel} aria-label="Cancel booking">
+                Cancel
+              </button>
+
             </div>
           </div>
         )}

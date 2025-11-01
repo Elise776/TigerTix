@@ -187,6 +187,7 @@ export default function VoiceChat()
 
       <div className="flex items-center justify-center">
         <button
+          id="mic-button"
           onClick={startRecording}
           className={`px-4 py-2 rounded-lg text-white font-semibold ${
             recording ? "bg-red-600 animate-pulse" : "bg-blue-600 hover:bg-blue-700"
@@ -195,6 +196,7 @@ export default function VoiceChat()
         >
           {recording ? "Listening..." : "Speech to text"}
         </button>
+
       </div>
     </div>
   );

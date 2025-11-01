@@ -24,15 +24,18 @@ function findEventByName(name, callback) {
   const sql = `
     SELECT * 
     FROM events 
-    WHERE LOWER(name) = ? 
-       OR LOWER(name) LIKE ?
+    WHERE LOWER(name) LIKE '%' || ? || '%'
+       OR ? LIKE '%' || LOWER(name) || '%'
     LIMIT 1
   `;
-  db.get(sql, [searchName, `%${searchName}%`], (err, row) => {
+
+  db.get(sql, [searchName, searchName], (err, row) => {
     if (err) return callback(err);
-    callback(null, row || null);
+    if (!row) return callback(new Error(`Could not find an event matching "${name}".`));
+    callback(null, row);
   });
 }
+
 
 /**
  * Transactionally book tickets
