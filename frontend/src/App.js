@@ -1,8 +1,3 @@
-/**
- * App.js
- * Combines events list and LLM chatbot booking with explicit confirmation.
- */
-
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import VoiceChat from "./components/voiceInterface";
@@ -44,17 +39,28 @@ function App() {
   };
 
   // Chat: parse user input via LLM
-  const handleSend = async () => {
-    const text = input.trim();
-    if (!text) return;
-    setMessages((m) => [...m, { role: "user", text }]);
+  const handleSend = async (text) => {
+    const inputText = text?.trim() ?? input.trim();
+    if (!inputText) return;
+
+    setMessages((m) => [...m, { role: "user", text: inputText }]);
     setInput("");
 
+    // Check for user confirmation shortcut
+    if (
+      pendingParse &&
+      ["confirm", "yes", "y"].includes(inputText.toLowerCase())
+    ) {
+      handleConfirm();
+      return;
+    }
+
+    // Otherwise, parse input via LLM
     try {
       const res = await fetch("http://localhost:7001/api/llm/parse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: inputText }),
       });
 
       const data = await res.json();
@@ -212,7 +218,7 @@ function App() {
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder='Try "Book 2 tickets for Jazz Night"'
           />
-          <button onClick={handleSend}>Send</button>
+          <button onClick={() => handleSend()}>Send</button>
         </div>
 
         {pendingParse && (
@@ -224,7 +230,7 @@ function App() {
             }}
           >
             <div>
-              <strong>Confirm booking:</strong> {pendingParse.tickets} {" "}
+              <strong>Confirm booking:</strong> {pendingParse.tickets}{" "}
               {pendingParse.event}
             </div>
             <div style={{ marginTop: 8 }}>
@@ -238,14 +244,20 @@ function App() {
               <button onClick={handleCancel} aria-label="Cancel booking">
                 Cancel
               </button>
-
             </div>
           </div>
         )}
       </div>
-      {/*Voice Enabled Interface */}
+
+      {/* Voice Enabled Interface */}
       <div style={{ marginTop: 40 }}>
-        <VoiceChat />
+        <VoiceChat
+          messages={messages}
+          setMessages={setMessages}
+          pendingParse={pendingParse}
+          setPendingParse={setPendingParse}
+          handleConfirm={handleConfirm}
+        />
       </div>
     </div>
   );
