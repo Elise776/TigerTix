@@ -16,7 +16,8 @@ function confirmBooking(req, res) {
       if (err) {
         return res.status(400).json({ success: false, message: err.message });
       }
-      return res.status(200).json({ success: true, booking: result });
+      return res.status(200).json({success: true,booking: {event: parse.event,tickets: parse.tickets,bookingId: result.bookingId,eventId: result.eventId,qty: result.qty}});
+
     }
   );
 }

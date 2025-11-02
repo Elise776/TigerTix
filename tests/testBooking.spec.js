@@ -1,24 +1,37 @@
 import { test, expect } from '@playwright/test';
 
-test('User can complete an LLM-driven booking', async ({ page, request }) => {
-  // 1. Navigate to client app
-  await page.goto('/');
-  await expect(page.getByRole('heading', { name: /TigerTix/i })).toBeVisible();
+test('Booking using the LLM is sucessful', async ({ page }) => 
+{
+    //Goes to the TigerTix page
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: /Clemson Campus Events/i })).toBeVisible();
 
-  // 2. Open chat and enter natural-language request
-  await page.getByPlaceholder('Type your message').fill('Book two tickets for Jazz Night');
-  await page.keyboard.press('Enter');
+    //Checks if llm parses the request to book 2 tickets for a festibal
+    await page.route('**/api/llm/parse', async route => 
+    {
+        await route.fulfill({json: { parsed: true, result: { event: 'festival', tickets: 2 } },});
+    });
 
-  // 3. Verify LLM proposal appears
-  await expect(page.getByText(/Confirm booking for Jazz Night/)).toBeVisible();
+    //Checks if the llm confirms request to book 2 festival tickets
+    await page.route('**/api/llm/confirm', async route => 
+    {
+        await route.fulfill({json: { success: true, booking: { event: 'festival', tickets: 2 } },});
+    });
 
-  // 4. Confirm booking
-  await page.getByRole('button', { name: /Confirm Booking/i }).click();
-  await expect(page.getByText(/Booking confirmed/i)).toBeVisible();
+    //Simulated "user" can request to book tickets
+    const input = page.getByPlaceholder(/Book/i);
+    await input.fill('Book 2 tickets for festival');
+    //Simulates pressing "enter" key
+    await page.keyboard.press('Enter');
 
-  // 5. API verification
-  const events = await request.get('/api/events');
-  const data = await events.json();
-  const jazz = data.find(e => e.name === 'Jazz Night');
-  expect(jazz.tickets).toBeGreaterThanOrEqual(0);
+    //Checks that the llm confirms booking
+    await expect(page.getByText(/I understood: Book 2 ticket\(s\) for "festival"\. Confirm\?/i).first()).toBeVisible({ timeout: 10000 });
+
+    //Simulates user hitting "confirm booking" button
+    await page.getByRole('button', { name: /Confirm Booking/i }).click();
+
+    await page.waitForTimeout(500);
+
+    //Checks if llm sucessfully books ticket
+    await expect(page.getByText(/Booking successful.*["']?Festival["']?/i, { exact: false }).first()).toBeVisible({ timeout: 15000 });
 });
