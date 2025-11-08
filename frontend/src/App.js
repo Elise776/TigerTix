@@ -65,12 +65,21 @@ function App() {
   {
     try 
     {
-      await fetch("http://localhost:8001/api/authentication/logout", {method: "POST",headers: { Authorization: `Bearer ${token}` },});
+      await fetch("http://localhost:7002/api/auth/logout", {method: "POST",headers: { Authorization: `Bearer ${token}` },});
     } 
-    catch {}
+    catch (err) 
+    {
+      console.error("logout error", err);
+    }
+
     setUser(null);
     setToken("");
+
+    setMessages([]);
+    setPendingParse(null);
+    setInput("");
   };
+
 
 
   // Buy ticket via direct purchase button
