@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+dotenv.config({ quiet: true });
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 module.exports = (request, response, next) => 
