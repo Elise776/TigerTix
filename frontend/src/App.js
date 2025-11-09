@@ -27,54 +27,82 @@ function App() {
       .catch((err) => console.error(err));
   }, []);
 
+  //Handles user registration
   const handleRegister = async () => 
   {
     try
     {
+      //Sends a POST request using the registerUser api to register the user
       const response = await fetch("http://localhost:8001/api/authentication/register", {method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }),});
+      
+      //Gets the JSON response from the server and parses it
       const data = await response.json();
+
+      //Raises an error if the registration process cannot be completed
       if (!response.ok) 
         return alert(data.error || "Registration failed");
+
+      //Lets the user know if registration has been completed
       alert("Registration successful. Please log in.");
+
+      //Switches to the login screen
       setAuthenticationMode("login");
     }
     catch(err)
     {
-      console.error("registration error", err);
+      //Raises an error if an error occured during registration
+      console.error("An error occured during registration", err);
     }
   };
 
+  //Handles user login
   const handleLogin = async () => 
   {
     try 
     {
+      //Sends a post request to the userLogin api to login the user
       const response = await fetch("http://localhost:8001/api/authentication/login", {method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }),});
+      
+      //Gets the JSON response from the server and parses it
       const data = await response.json();
-      if (!response.ok) return alert(data.error || "Login failed");
+
+      //Raises an error if the login process cannot be completed
+      if (!response.ok) 
+        return alert(data.error || "Login failed");
+
+      //Assigns a token to the user
       setToken(data.token); 
+      //Sets the user's login info
       setUser({ email });
       setEmail("");
       setPassword("");
-    } catch(err) 
+    } 
+    catch(err) 
     {
-      console.error("login error", err);
+      //Raisies an error if an error occurs during the login process
+      console.error("An error occured during login", err);
     }
   };
 
+  //Handles user logout
   const handleLogout = async () => 
   {
     try 
     {
+      //Uses the userLogout api to logout the user using a POST request
       await fetch("http://localhost:7002/api/auth/logout", {method: "POST",headers: { Authorization: `Bearer ${token}` },});
     } 
     catch (err) 
     {
-      console.error("logout error", err);
+      //Throws an error if an error occurs while logging out
+      console.error("An error occured during logout", err);
     }
 
+    //Resets the user
     setUser(null);
+    //Resets the token
     setToken("");
-
+    //Clears chatbot message log
     setMessages([]);
     setPendingParse(null);
     setInput("");
