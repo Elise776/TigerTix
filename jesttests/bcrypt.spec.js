@@ -1,6 +1,20 @@
+/**
+ * Unit tests for bcrypt hashing and comparison behavior.
+ *
+ * These tests verify that:
+ *  - bcrypt.hashSync is called correctly and returns the mocked hash.
+ *  - bcrypt.compareSync correctly returns the mocked boolean comparison result.
+ */
 const bcrypt = require("bcryptjs");
 jest.mock("bcryptjs");
 
+/**
+ * Test: bcrypt.hashSync hashes a password correctly.
+ *
+ * Ensures:
+ *  - hashSync is called with the correct arguments.
+ *  - the mocked return value is passed back from the function.
+ */
 test("bcrypt.hashSync hashes password", () => {
   bcrypt.hashSync.mockReturnValue("hashedPassword");
   const password = "mypassword";
@@ -10,6 +24,13 @@ test("bcrypt.hashSync hashes password", () => {
   expect(hash).toBe("hashedPassword");
 });
 
+/**
+ * Test: bcrypt.compareSync returns correct comparison result.
+ *
+ * Ensures:
+ *  - compareSync is called with the correct arguments.
+ *  - it returns the mocked comparison result.
+ */
 test("bcrypt.compareSync returns correct result", () => {
   bcrypt.compareSync.mockReturnValue(true);
   const result = bcrypt.compareSync("password123", "hashedPassword");

@@ -1,5 +1,12 @@
 import { test, expect } from "@playwright/test";
 
+/**
+ * Test: Events are able to be booked using the LLM
+ *
+ * Ensures:
+ *  - LLM parser works
+ *  - Ability to book events through the LLM
+ */
 test("Booking using the LLM is successful", async ({ page }) => {
   await page.goto("/");
 

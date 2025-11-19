@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
 
+/**
+ * Test: Booking tickets for an event
+ *
+ * Ensures:
+ *  - Users are able to log in then purchase a ticket for an event on the site
+ */
 test("User can book tickets for an event", async ({ request }) => {
   const createRes = await request.post(
     "http://localhost:5001/api/admin/events",
@@ -31,7 +37,6 @@ test("User can book tickets for an event", async ({ request }) => {
 
   expect(result.success).toBeTruthy();
 
-  // OPTIONAL checks depending on your real controller:
   if ("remainingTickets" in result) {
     expect(result.remainingTickets).toBeGreaterThanOrEqual(0);
   }

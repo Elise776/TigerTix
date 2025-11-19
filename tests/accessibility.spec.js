@@ -1,15 +1,17 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('All buttons are accessible for all users', async ({ page }) => 
-{
-    //Opens TigerTix page
-    await page.goto('/');
+/**
+ * Test: Buttons are accessible for the impaired
+ *
+ * Ensures:
+ *  - Buttons on the website can be accessed easily for the impaired
+ */
+test("All buttons are accessible for all users", async ({ page }) => {
+  await page.goto("/");
 
-    //Simulates a user pressing the "tab" key
-    await page.keyboard.press('Tab');
+  await page.keyboard.press("Tab");
 
-    const focused = await page.evaluate(() => document.activeElement.tagName);
+  const focused = await page.evaluate(() => document.activeElement.tagName);
 
-    //Makes sure that the field selected changes as expected
-    expect(['BUTTON','A','INPUT']).toContain(focused);
+  expect(["BUTTON", "A", "INPUT"]).toContain(focused);
 });

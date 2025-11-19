@@ -1,6 +1,12 @@
 const jwt = require("jsonwebtoken");
 jest.mock("jsonwebtoken");
 
+/**
+ * Test: JWT token is created
+ *
+ * Ensures:
+ *  - jwt token is created when user is logged in. Expires in 30 minutes
+ */
 test("JWT token is created with correct payload", () => {
   const fakeUser = { id: 42, email: "test@example.com" };
   const token = "mockedToken";

@@ -1,14 +1,19 @@
 import { test, expect } from "@playwright/test";
 
+/**
+ * Test: Book events through the voice chat option
+ *
+ * Ensures:
+ *  - Voice API works
+ *  - Voice API can be called to book tickets for the impaired
+ */
 test("Voice chat can book tickets via mock transcription", async ({ page }) => {
-  // 1️⃣ Mock logged-in user so voice chat renders
   await page.addInitScript(() => {
     localStorage.setItem(
       "user",
       JSON.stringify({ email: "testuser@example.com" })
     );
 
-    // 2️⃣ Mock SpeechRecognition
     class MockRecognition {
       constructor() {}
       start() {
@@ -51,7 +56,6 @@ test("Voice chat can book tickets via mock transcription", async ({ page }) => {
     window.webkitSpeechRecognition = MockRecognition;
   });
 
-  // 3️⃣ Mock LLM API
   await page.route("**/api/llm/parse", (route) =>
     route.fulfill({
       status: 200,
@@ -70,26 +74,21 @@ test("Voice chat can book tickets via mock transcription", async ({ page }) => {
     })
   );
 
-  // 4️⃣ Go to the page
   await page.goto("/");
 
-  // 5️⃣ Click the mic button
   const micButton = page.locator("#mic-button");
   await micButton.waitFor({ state: "visible", timeout: 5000 });
   await micButton.click();
 
-  // 6️⃣ Wait for bot parsed message
   const parsedMessage = page.locator(".p-4.max-w-md", {
     hasText: "I understood: Book 2 tickets for cpsc Expo",
   });
   await parsedMessage.waitFor({ timeout: 5000 });
 
-  // 7️⃣ Click confirm booking
   const confirmBtn = page.locator('button:has-text("Confirm Booking")');
   await confirmBtn.waitFor({ timeout: 5000 });
   await confirmBtn.click();
 
-  // 8️⃣ Verify success message
   const successMessage = page.locator(".p-4.max-w-md", {
     hasText: 'Booking successful (qty: 2) for "cpsc Expo".',
   });

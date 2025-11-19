@@ -1,7 +1,13 @@
 import { test, expect } from "@playwright/test";
 
-const TEST_EVENT_ID = 128; // Use an existing event with plenty of tickets
+const TEST_EVENT_ID = 128;
 
+/**
+ * Test: Tickets decrease when purchase is completed
+ *
+ * Ensures:
+ *  - DB interaction matches the amount of tickets purchased
+ */
 test("purchaseTicket decreases tickets without failing", async ({
   request,
 }) => {

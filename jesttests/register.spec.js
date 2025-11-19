@@ -5,6 +5,14 @@ const bcrypt = require("bcryptjs");
 jest.mock("../backend/user-authentication/models/authenticationModel");
 jest.mock("bcryptjs");
 
+/**
+ * Test: Missing email or password should cause a 400 error.
+ *
+ * Ensures:
+ *  - Validation identifies missing required fields
+ *  - Controller responds with 400
+ *  - Correct JSON error message is returned
+ */
 describe("Registration", () => {
   let mockRequest, mockResponse;
 
