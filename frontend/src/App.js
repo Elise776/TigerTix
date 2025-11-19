@@ -7,7 +7,7 @@ function App() {
   const [messages, setMessages] = useState([]); // chat messages
   const [input, setInput] = useState("");
   const [pendingParse, setPendingParse] = useState(null); // { event, tickets }
-  //User login info
+  //User login info, used in testing
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
@@ -257,7 +257,6 @@ function App() {
     <div className="App">
       <h1>Clemson Campus Events</h1>
 
-      {/* AUTHENTICATION GATE */}
       {!user ? (
         <div
           style={{
@@ -332,7 +331,6 @@ function App() {
             )}
           </ul>
 
-          {/* Chatbot */}
           <div className="chat-container">
             <h2>Chat Assistant</h2>
             <div
@@ -392,7 +390,6 @@ function App() {
             )}
           </div>
 
-          {/* Voice Interface */}
           <div style={{ marginTop: 40 }}>
             <VoiceChat
               messages={messages}
