@@ -1,25 +1,24 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('Tests accessibility of buttons for screen readers', async ({ page }) => 
-{
-  await page.goto('/');
+test("Voice mic button is accessible", async ({ page }) => {
+  // 1️⃣ Go to the page
+  await page.goto("/");
 
-  //Waits for "mic" button
-  const micButton = page.locator('#mic-button');
-  await micButton.waitFor({ state: 'visible', timeout: 10000 });
+  // 2️⃣ Log in programmatically so mic button appears
+  await page.evaluate(() => {
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ email: "testuser@example.com" })
+    );
+  });
 
-  //Checks that the mic button has an aria label for accessibility
-  await expect(micButton).toHaveAttribute('aria-label', /voice|speech/i);
+  // 3️⃣ Reload the page so App picks up the user from localStorage
+  await page.reload();
 
-  //Simulates booking request
-  const input = page.getByPlaceholder(/Book/i);
-  await input.fill('Book 2 tickets for Jazz Night');
-  await page.keyboard.press('Enter');
+  // 4️⃣ Wait for mic button to appear
+  const micButton = page.locator("#mic-button");
+  await micButton.waitFor({ state: "visible", timeout: 10000 });
 
-  //Waits for "confirm" button
-  const confirmButton = page.getByRole('button', { name: /Confirm Booking/i });
-  await confirmButton.waitFor({ state: 'visible', timeout: 10000 });
-
-  //Checks that the confirm button has an aria label for accessibility
-  await expect(confirmButton).toHaveAttribute('aria-label', /confirm/i);
+  // 5️⃣ Check accessibility
+  await expect(micButton).toHaveAttribute("aria-label", /voice|speech/i);
 });

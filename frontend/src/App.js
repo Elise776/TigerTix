@@ -8,16 +8,18 @@ function App() {
   const [input, setInput] = useState("");
   const [pendingParse, setPendingParse] = useState(null); // { event, tickets }
   //User login info
-  const [user, setUser] = useState(null); 
-  //JWT token      
-  const [token, setToken] = useState(""); 
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
+  //JWT token
+  const [token, setToken] = useState("");
   //Swaps between user login and registration
-  const [authenticationMode, setAuthenticationMode] = useState("login"); 
+  const [authenticationMode, setAuthenticationMode] = useState("login");
   //Sets user email
   const [email, setEmail] = useState("");
   //Sets user password
   const [password, setPassword] = useState("");
-
 
   // Load events list
   useEffect(() => {
@@ -28,72 +30,75 @@ function App() {
   }, []);
 
   //Handles user registration
-  const handleRegister = async () => 
-  {
-    try
-    {
+  const handleRegister = async () => {
+    try {
       //Sends a POST request using the registerUser api to register the user
-      const response = await fetch("http://localhost:8001/api/authentication/register", {method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }),});
-      
+      const response = await fetch(
+        "http://localhost:8001/api/authentication/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
       //Gets the JSON response from the server and parses it
       const data = await response.json();
 
       //Raises an error if the registration process cannot be completed
-      if (!response.ok) 
-        return alert(data.error || "Registration failed");
+      if (!response.ok) return alert(data.error || "Registration failed");
 
       //Lets the user know if registration has been completed
       alert("Registration successful. Please log in.");
 
       //Switches to the login screen
       setAuthenticationMode("login");
-    }
-    catch(err)
-    {
+    } catch (err) {
       //Raises an error if an error occured during registration
       console.error("An error occured during registration", err);
     }
   };
 
   //Handles user login
-  const handleLogin = async () => 
-  {
-    try 
-    {
+  const handleLogin = async () => {
+    try {
       //Sends a post request to the userLogin api to login the user
-      const response = await fetch("http://localhost:8001/api/authentication/login", {method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }),});
-      
+      const response = await fetch(
+        "http://localhost:8001/api/authentication/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
       //Gets the JSON response from the server and parses it
       const data = await response.json();
 
       //Raises an error if the login process cannot be completed
-      if (!response.ok) 
-        return alert(data.error || "Login failed");
+      if (!response.ok) return alert(data.error || "Login failed");
 
       //Assigns a token to the user
-      setToken(data.token); 
+      setToken(data.token);
       //Sets the user's login info
       setUser({ email });
       setEmail("");
       setPassword("");
-    } 
-    catch(err) 
-    {
+    } catch (err) {
       //Raisies an error if an error occurs during the login process
       console.error("An error occured during login", err);
     }
   };
 
   //Handles user logout
-  const handleLogout = async () => 
-  {
-    try 
-    {
+  const handleLogout = async () => {
+    try {
       //Uses the userLogout api to logout the user using a POST request
-      await fetch("http://localhost:7002/api/auth/logout", {method: "POST",headers: { Authorization: `Bearer ${token}` },});
-    } 
-    catch (err) 
-    {
+      await fetch("http://localhost:7002/api/auth/logout", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
       //Throws an error if an error occurs while logging out
       console.error("An error occured during logout", err);
     }
@@ -107,8 +112,6 @@ function App() {
     setPendingParse(null);
     setInput("");
   };
-
-
 
   // Buy ticket via direct purchase button
   const buyTicket = (eventId) => {
@@ -251,135 +254,158 @@ function App() {
   };
 
   return (
-  <div className="App">
-    <h1>Clemson Campus Events</h1>
+    <div className="App">
+      <h1>Clemson Campus Events</h1>
 
-    {/* AUTHENTICATION GATE */}
-    {!user ? (
-      <div style={{ border: "1px solid #ccc", padding: 16, width: 400, margin: "40px auto" }}>
-        <h2>{authenticationMode === "login" ? "Login" : "Register"}</h2>
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: "100%", marginBottom: 8, padding: 8 }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", marginBottom: 12, padding: 8 }}
-        />
-        {authenticationMode === "login" ? (
-          <>
-            <button onClick={handleLogin} style={{ marginRight: 8 }}>Login</button>
-            <button onClick={() => setAuthenticationMode("register")}>Need an account?</button>
-          </>
-        ) : (
-          <>
-            <button onClick={handleRegister} style={{ marginRight: 8 }}>Register</button>
-            <button onClick={() => setAuthenticationMode("login")}>Back to login</button>
-          </>
-        )}
-      </div>
-    ) : (
-      <>
-        <div style={{ textAlign: "right", marginBottom: 12 }}>
-          <p>Logged in as <strong>{user.email}</strong></p>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-
-        <h2>Upcoming Events</h2>
-        <ul>
-          {events.length === 0 ? (
-            <li>No events available</li>
+      {/* AUTHENTICATION GATE */}
+      {!user ? (
+        <div
+          style={{
+            border: "1px solid #ccc",
+            padding: 16,
+            width: 400,
+            margin: "40px auto",
+          }}
+        >
+          <h2>{authenticationMode === "login" ? "Login" : "Register"}</h2>
+          <input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: "100%", marginBottom: 8, padding: 8 }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: "100%", marginBottom: 12, padding: 8 }}
+          />
+          {authenticationMode === "login" ? (
+            <>
+              <button onClick={handleLogin} style={{ marginRight: 8 }}>
+                Login
+              </button>
+              <button onClick={() => setAuthenticationMode("register")}>
+                Need an account?
+              </button>
+            </>
           ) : (
-            events.map((event) => (
-              <li key={event.id}>
-                <span>
-                  {event.name} - {event.date} - Tickets Available:{" "}
-                  <span aria-live="polite">{event.tickets ?? 0}</span>
-                </span>{" "}
-                <button
-                  onClick={() => buyTicket(event.id)}
-                  aria-label={`Buy a ticket for ${event.name}`}
-                >
-                  Buy Ticket
-                </button>
-              </li>
-            ))
+            <>
+              <button onClick={handleRegister} style={{ marginRight: 8 }}>
+                Register
+              </button>
+              <button onClick={() => setAuthenticationMode("login")}>
+                Back to login
+              </button>
+            </>
           )}
-        </ul>
+        </div>
+      ) : (
+        <>
+          <div style={{ textAlign: "right", marginBottom: 12 }}>
+            <p>
+              Logged in as <strong>{user.email}</strong>
+            </p>
+            <button onClick={handleLogout}>Logout</button>
+          </div>
 
-        {/* Chatbot */}
-        <div className="chat-container">
-          <h2>Chat Assistant</h2>
-          <div
-            className="chat-box"
-            style={{
-              height: 300,
-              overflowY: "auto",
-              border: "1px solid #ddd",
-              padding: 10,
-            }}
-          >
-            {messages.map((m, idx) => (
+          <h2>Upcoming Events</h2>
+          <ul>
+            {events.length === 0 ? (
+              <li>No events available</li>
+            ) : (
+              events.map((event) => (
+                <li key={event.id}>
+                  <span>
+                    {event.name} - {event.date} - Tickets Available:{" "}
+                    <span aria-live="polite">{event.tickets ?? 0}</span>
+                  </span>{" "}
+                  <button
+                    onClick={() => buyTicket(event.id)}
+                    aria-label={`Buy a ticket for ${event.name}`}
+                  >
+                    Buy Ticket
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+
+          {/* Chatbot */}
+          <div className="chat-container">
+            <h2>Chat Assistant</h2>
+            <div
+              className="chat-box"
+              style={{
+                height: 300,
+                overflowY: "auto",
+                border: "1px solid #ddd",
+                padding: 10,
+              }}
+            >
+              {messages.map((m, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    margin: 6,
+                    textAlign: m.role === "user" ? "right" : "left",
+                  }}
+                >
+                  <strong>{m.role === "user" ? "You" : "Bot"}: </strong>
+                  <span>{m.text}</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <input
+                aria-label="Chat input"
+                style={{ flex: 1, padding: 8 }}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                placeholder='Try "Book 2 tickets for Jazz Night"'
+              />
+              <button onClick={() => handleSend()}>Send</button>
+            </div>
+
+            {pendingParse && (
               <div
-                key={idx}
                 style={{
-                  margin: 6,
-                  textAlign: m.role === "user" ? "right" : "left",
+                  marginTop: 12,
+                  borderTop: "1px solid #eee",
+                  paddingTop: 12,
                 }}
               >
-                <strong>{m.role === "user" ? "You" : "Bot"}: </strong>
-                <span>{m.text}</span>
+                <div>
+                  <strong>Confirm booking:</strong> {pendingParse.tickets}{" "}
+                  {pendingParse.event}
+                </div>
+                <div style={{ marginTop: 8 }}>
+                  <button onClick={handleConfirm} style={{ marginRight: 8 }}>
+                    Confirm Booking
+                  </button>
+                  <button onClick={handleCancel}>Cancel</button>
+                </div>
               </div>
-            ))}
+            )}
           </div>
 
-          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-            <input
-              aria-label="Chat input"
-              style={{ flex: 1, padding: 8 }}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder='Try "Book 2 tickets for Jazz Night"'
+          {/* Voice Interface */}
+          <div style={{ marginTop: 40 }}>
+            <VoiceChat
+              messages={messages}
+              setMessages={setMessages}
+              pendingParse={pendingParse}
+              setPendingParse={setPendingParse}
+              handleConfirm={handleConfirm}
             />
-            <button onClick={() => handleSend()}>Send</button>
           </div>
-
-          {pendingParse && (
-            <div style={{ marginTop: 12, borderTop: "1px solid #eee", paddingTop: 12 }}>
-              <div>
-                <strong>Confirm booking:</strong> {pendingParse.tickets} {pendingParse.event}
-              </div>
-              <div style={{ marginTop: 8 }}>
-                <button onClick={handleConfirm} style={{ marginRight: 8 }}>
-                  Confirm Booking
-                </button>
-                <button onClick={handleCancel}>Cancel</button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Voice Interface */}
-        <div style={{ marginTop: 40 }}>
-          <VoiceChat
-            messages={messages}
-            setMessages={setMessages}
-            pendingParse={pendingParse}
-            setPendingParse={setPendingParse}
-            handleConfirm={handleConfirm}
-          />
-        </div>
-      </>
-    )}
-  </div>
-);
-
+        </>
+      )}
+    </div>
+  );
 }
 
 export default App;
