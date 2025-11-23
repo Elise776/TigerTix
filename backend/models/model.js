@@ -14,7 +14,10 @@
  */
 
 //getEvents() api
-const GETEVENTSAPI = 'http://localhost:6001/api/events'; 
+const CLIENT_EVENTS_URL = process.env.CLIENT_EVENTS_URL;
+
+const GETEVENTSAPI = `${CLIENT_EVENTS_URL}/api/events`;
+
 
 const getEvents = async () => 
   {

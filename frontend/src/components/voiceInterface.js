@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
 
+const LLM_URL  = process.env.REACT_APP_LLM_URL;
+
 export default function VoiceChat({
   messages,
   setMessages,
@@ -9,7 +11,7 @@ export default function VoiceChat({
 }) {
   const [recording, setRecording] = useState(false);
   const recognitionRef = useRef(null);
-  const llmApi = "http://localhost:7001/api/llm/parse";
+  const llmApi = `${LLM_URL}/api/llm/parse`
 
   function playBeep() {
     const audioContext = new (window.AudioContext ||
