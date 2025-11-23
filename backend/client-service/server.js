@@ -6,7 +6,18 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const routes = require("./routes/clientRoutes");
-app.use(cors());
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://tiger-tix-nine.vercel.app"
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true
+  })
+);
 app.use(express.json());
 app.use("/api", routes);
 // port for client microservice
