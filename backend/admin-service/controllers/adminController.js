@@ -20,9 +20,9 @@ const { createEvent } = require("../models/adminModel");
  */
 function addEvent(request, response) {
   //Reads in information from client
-  name = request.body.name;
-  date = request.body.date;
-  tickets = request.body.tickets;
+  const name = request.body.name;
+  const date = request.body.date;
+  const tickets = request.body.tickets;
 
   //Validation to make sure all fields have information
   if (!name || !date || tickets == null) {
