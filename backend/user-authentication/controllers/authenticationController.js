@@ -33,7 +33,10 @@ exports.register = (request, response) => {
       if (err)
         return response.status(400).json({ error: "User already exists" });
 
-      response.json({ message: "Registration for TigerTix is successful" });
+      response.cookie("token", token, {httpOnly: true,secure: true, sameSite: "none", maxAge: 30 * 60 * 1000});
+
+response.json({ message: "Login successful" });
+
     }
   );
 };

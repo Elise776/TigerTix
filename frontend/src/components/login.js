@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const AUTH_URL = process.env.REACT_APP_AUTHENTICATION_URL;
+
 //Handles a uer's login
 export default function Login({ setUser }) 
 {
@@ -12,8 +14,15 @@ export default function Login({ setUser })
         userEmail.preventDefault();
 
         //Uses the userLogin api to attempt to login the user based on their entered credentials
-        const response = await fetch('http://localhost:8001/api/authentication/login', {method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })});
-        
+        const response = await fetch(
+          `${AUTH_URL}/api/authentication/login`,
+          {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          }
+        );
         const data = await response.json();
         
         //If a valid email and password combination is entered, a token is assigned to the user

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const AUTH_URL = process.env.REACT_APP_AUTHENTICATION_URL;
+
 //Handles user registration
 export default function Register() 
 {
@@ -12,7 +14,15 @@ export default function Register()
         submission.preventDefault();
 
         //Uses the registerUser api to send a POST request to register the user
-        const response = await fetch('http://localhost:8001/api/authentication/register', {method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })});
+        const response = await fetch(
+          `${AUTH_URL}/api/authentication/register`,
+          {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          }
+        );
         
         //Lets the user know if registration was sucessful
         alert((await response.json()).message);

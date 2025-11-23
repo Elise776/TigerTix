@@ -2,6 +2,13 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import VoiceChat from "./components/voiceInterface";
 
+const AUTH_URL = process.env.REACT_APP_AUTHENTICATION_URL;
+const CLIENT_URL = process.env.REACT_APP_CLIENT_URL;
+const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
+const LLM_URL = process.env.REACT_APP_LLM_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+
 function App() {
   const [events, setEvents] = useState([]);
   const [messages, setMessages] = useState([]); // chat messages
@@ -23,24 +30,26 @@ function App() {
 
   // Load events list
   useEffect(() => {
-    fetch("http://localhost:5000/api/events")
-      .then((res) => res.json())
-      .then((data) => setEvents(data))
-      .catch((err) => console.error(err));
-  }, []);
+  fetch(`${BACKEND_URL}/api/events`, {
+    credentials: "include"
+  })
+    .then((res) => res.json())
+    .then((data) => setEvents(data))
+    .catch((err) => console.error(err));
+}, []);
+
 
   //Handles user registration
   const handleRegister = async () => {
     try {
       //Sends a POST request using the registerUser api to register the user
-      const response = await fetch(
-        "http://localhost:8001/api/authentication/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch(`${AUTH_URL}/api/authentication/register`, {
+  method: "POST",
+  credentials: "include",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password }),
+});
+
 
       //Gets the JSON response from the server and parses it
       const data = await response.json();
@@ -64,9 +73,10 @@ function App() {
     try {
       //Sends a post request to the userLogin api to login the user
       const response = await fetch(
-        "http://localhost:8001/api/authentication/login",
+        `${AUTH_URL}/api/authentication/login`,
         {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         }
@@ -94,8 +104,9 @@ function App() {
   const handleLogout = async () => {
     try {
       //Uses the userLogout api to logout the user using a POST request
-      await fetch("http://localhost:7002/api/auth/logout", {
+      await fetch(`${AUTH_URL}/api/authentication/logout`, {
         method: "POST",
+        credentials: "include",
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
@@ -115,8 +126,9 @@ function App() {
 
   // Buy ticket via direct purchase button
   const buyTicket = (eventId) => {
-    fetch(`http://localhost:5000/api/events/${eventId}/purchase`, {
+    fetch(`${CLIENT_URL}/api/events/${eventId}/purchase`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
     })
       .then((res) => {
@@ -154,8 +166,9 @@ function App() {
 
     // Otherwise, parse input via LLM
     try {
-      const res = await fetch("http://localhost:7001/api/llm/parse", {
+      const res = await fetch(`${LLM_URL}/api/llm/parse`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: inputText }),
       });
@@ -204,8 +217,9 @@ function App() {
     ]);
 
     try {
-      const res = await fetch("http://localhost:7001/api/llm/confirm", {
+      const res = await fetch(`${LLM_URL}/api/llm/confirm`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           confirm: true,
@@ -233,7 +247,7 @@ function App() {
       ]);
 
       // Refresh events list
-      fetch("http://localhost:5000/api/events")
+      fetch(`${BACKEND_URL}/api/events`, { credentials: "include" })
         .then((r) => r.json())
         .then((updatedEvents) => setEvents(updatedEvents))
         .catch(() => {});
