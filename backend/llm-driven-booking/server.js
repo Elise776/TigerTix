@@ -1,11 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const llmRoutes = require("./routes/llmRoutes");
+require("dotenv").config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://tiger-tix-nine.vercel.app"
+];
+
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
