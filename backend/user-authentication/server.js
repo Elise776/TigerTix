@@ -1,16 +1,35 @@
-const express = require('express');
-const cors = require('cors');
-const app = express();
-const routes = require('./routes/authenticationRoutes');
-const cookieParser = require('cookie-parser');
-app.use(express.json());
-app.use(cookieParser());
-const allowedOrigins = ["http://localhost:3000", "tiger-tix-nine.vercel.app"];
-app.use(cors({origin: allowedOrigins,credentials: true,}));
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
 
-app.use('/api/authentication', routes);
-const PORT = process.env.PORT || 8001;
-app.listen(PORT, () =>
-  console.log(`Client Server running at
-http://localhost:${PORT}`)
+const app = express();
+
+// CORS MUST specify your Vercel domain
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://tiger-tix-nine.vercel.app"
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true
+  })
 );
+
+// Needed for POST bodies
+app.use(express.json());
+
+// Needed for cookies
+app.use(cookieParser());
+
+// ROUTES
+const authRoutes = require("./routes/authenticationRoutes");
+app.use("/api/authentication", authRoutes);
+
+// DYNAMIC RENDER PORT
+const PORT = process.env.PORT || 8001;
+app.listen(PORT, () => {
+  console.log(`Auth service running on port ${PORT}`);
+});
