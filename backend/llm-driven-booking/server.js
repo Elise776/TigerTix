@@ -12,7 +12,7 @@ app.use(express.json());
 app.use("/api/llm", llmRoutes);
 
 // Start server
-const PORT = 7001;
+const PORT = process.env.PORT || 7001;
 app.listen(PORT, () => {
   console.log(`LLM-driven booking service running at http://localhost:${PORT}`);
 });

@@ -9,7 +9,7 @@ const allowedOrigins = ["http://localhost:3000", "tiger-tix-nine.vercel.app"];
 app.use(cors({origin: allowedOrigins,credentials: true,}));
 
 app.use('/api/authentication', routes);
-const PORT = 8001;
+const PORT = process.env.PORT || 8001;
 app.listen(PORT, () =>
   console.log(`Client Server running at
 http://localhost:${PORT}`)

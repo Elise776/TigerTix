@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api", routes);
 // port for client microservice
-const PORT = 6001;
+const PORT = process.env.PORT || 6001;
 app.listen(PORT, () =>
   console.log(`Client Server running at
 http://localhost:${PORT}`)
