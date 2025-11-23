@@ -5,7 +5,9 @@ const routes = require('./routes/authenticationRoutes');
 const cookieParser = require('cookie-parser');
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+const allowedOrigins = ["http://localhost:3000", "tiger-tix-nine.vercel.app"];
+app.use(cors({origin: allowedOrigins,credentials: true,}));
+
 app.use('/api/authentication', routes);
 const PORT = 8001;
 app.listen(PORT, () =>
