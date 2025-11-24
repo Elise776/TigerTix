@@ -6,7 +6,6 @@ const fetch =
     import("node-fetch").then(({ default: fetch }) => fetch(...args)));
 
 
-
 function parseBooking(userMessage) {
   if (!userMessage) return null;
 
@@ -21,9 +20,10 @@ function parseBooking(userMessage) {
   let event = eventMatch ? eventMatch[1].trim() : null;
 
   // If event not detected (confirmation messages), fall back:
-  // e.g. “confirm booking 2 for cpsc expo”
+  // FIX: Relaxed regex to handle cases like "booking undefined for..." 
+  // Matches "booking", then any non-greedy text (.*?), then "for", then the event.
   if (!event) {
-    eventMatch = text.match(/booking\s+\d*\s*(?:ticket|tickets)?\s*for\s+(.+)/i);
+    eventMatch = text.match(/booking\s+(?:.*?)\s+for\s+(.+)/i);
     event = eventMatch ? eventMatch[1].trim() : null;
   }
 
@@ -33,8 +33,10 @@ function parseBooking(userMessage) {
     event = event.replace(/\s+/g, " ").trim();
   }
 
-  // Still missing? Abort safely.
-  if (!quantity || !event) {
+  // FIX: Only abort if the event is missing. 
+  // Previously, this failed if quantity was null (e.g., in the "undefined" error case).
+  // Now it returns the event even if quantity is missing, preventing the "Invalid parse payload" crash.
+  if (!event) {
     return null;
   }
 
