@@ -16,7 +16,7 @@
 //getEvents() api
 const CLIENT_EVENTS_URL = process.env.CLIENT_EVENTS_URL;
 
-const GETEVENTSAPI = `${CLIENT_EVENTS_URL}/api/events`;
+const GETEVENTSAPI = `${CLIENT_EVENTS_URL}`;
 
 
 const getEvents = async () => 
