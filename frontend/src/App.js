@@ -2,18 +2,23 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import VoiceChat from "./components/voiceInterface";
 
-const AUTH_URL = process.env.REACT_APP_AUTHENTICATION_URL;
+//URL for authentication microservive on vercel
+const AUTHENTICATION_URL = process.env.REACT_APP_AUTHENTICATION_URL;
+//URL for client microservice on vercel
 const CLIENT_URL = process.env.REACT_APP_CLIENT_URL;
+//URL for admin microservice on vercel
 const ADMIN_URL = process.env.REACT_APP_ADMIN_URL;
+//URL for LLM microservice on vercel
 const LLM_URL = process.env.REACT_APP_LLM_URL;
+//URL for backend microservice on vercel
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 
 function App() {
   const [events, setEvents] = useState([]);
-  const [messages, setMessages] = useState([]); // chat messages
+  const [messages, setMessages] = useState([]); 
   const [input, setInput] = useState("");
-  const [pendingParse, setPendingParse] = useState(null); // { event, tickets }
+  const [pendingParse, setPendingParse] = useState(null); 
   //User login info, used in testing
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("user");
@@ -43,7 +48,7 @@ function App() {
   const handleRegister = async () => {
     try {
       //Sends a POST request using the registerUser api to register the user
-      const response = await fetch(`${AUTH_URL}/api/authentication/register`, {
+      const response = await fetch(`${AUTHENTICATION_URL}/api/authentication/register`, {
   method: "POST",
   credentials: "include",
   headers: { "Content-Type": "application/json" },
@@ -73,7 +78,7 @@ function App() {
     try {
       //Sends a post request to the userLogin api to login the user
       const response = await fetch(
-        `${AUTH_URL}/api/authentication/login`,
+        `${AUTHENTICATION_URL}/api/authentication/login`,
         {
           method: "POST",
           credentials: "include",
@@ -104,7 +109,7 @@ function App() {
   const handleLogout = async () => {
     try {
       //Uses the userLogout api to logout the user using a POST request
-      await fetch(`${AUTH_URL}/api/authentication/logout`, {
+      await fetch(`${AUTHENTICATION_URL}/api/authentication/logout`, {
         method: "POST",
         credentials: "include",
         headers: { Authorization: `Bearer ${token}` },

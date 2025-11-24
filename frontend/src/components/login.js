@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const AUTH_URL = process.env.REACT_APP_AUTHENTICATION_URL;
+const AUTHENTICATION_URL = process.env.REACT_APP_AUTHENTICATION_URL;
 
 //Handles a uer's login
 export default function Login({ setUser }) 
@@ -15,7 +15,7 @@ export default function Login({ setUser })
 
         //Uses the userLogin api to attempt to login the user based on their entered credentials
         const response = await fetch(
-          `${AUTH_URL}/api/authentication/login`,
+          `${AUTHENTICATION_URL}/api/authentication/login`,
           {
             method: 'POST',
             credentials: 'include',

@@ -1,4 +1,4 @@
-const AUTH_URL = process.env.REACT_APP_AUTHENTICATION_URL;
+const AUTHENTICATION_URL = process.env.REACT_APP_AUTHENTICATION_URL;
 
 export default function Navbar({ user, setUser }) 
 {
@@ -6,7 +6,7 @@ export default function Navbar({ user, setUser })
     const logout = async () => 
     {
         //Sends a post request and uses the userLogout api to logout the user
-        await fetch(`${AUTH_URL}/api/authentication/logout`, {
+        await fetch(`${AUTHENTICATION_URL}/api/authentication/logout`, {
           method: 'POST',
           credentials: 'include'
         });

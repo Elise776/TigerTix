@@ -7,26 +7,24 @@ const fetch =
 
 
 
-function parseBooking(userText) {
+function parseBooking(userText) 
+{
   const message = userText.toLowerCase();
 
-  // Extract number
+  //Extract number of tickets
   let ticketsMatch = message.match(/(\d+)\s*(ticket|tickets|tix)?/);
   let tickets = ticketsMatch ? parseInt(ticketsMatch[1]) : null;
 
-  // Extract event (anything after "for")
+  //Extract event
   let eventMatch = message.match(/for\s+(.+)/i);
   let event = eventMatch ? eventMatch[1].trim() : null;
 
-  if (!tickets || !event) {
+  if (!tickets || !event) 
+  {
     return { success: false, error: "Could not parse booking request" };
   }
 
-  return {
-    success: true,
-    event,
-    tickets
-  };
+  return {success: true,event,tickets};
 }
 
 module.exports = { parseBooking };

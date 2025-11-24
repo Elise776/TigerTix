@@ -2,18 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-const allowedOrigins = [
-  "https://tiger-tix-nine.vercel.app",
-  "http://localhost:3000"
-];
+const allowedOrigins = ["https://tiger-tix-nine.vercel.app", "http://localhost:3000"];
 
-app.use(cors({
-  origin: [
-    "https://tiger-tix-nine.vercel.app", 
-  ],
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true
-}));
+app.use(cors({origin: ["https://tiger-tix-nine.vercel.app", ], methods: "GET,POST,PUT,DELETE", credentials: true}));
 
 app.use(express.json());
 const routes = require("./routes/routes");
