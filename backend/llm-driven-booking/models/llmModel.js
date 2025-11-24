@@ -1,6 +1,6 @@
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-async function parseBookingRequest(userInput) {
+async function parseBooking(userInput) {
   try {
     const response = await fetch(GROQ_URL, {
       method: "POST",
@@ -49,4 +49,4 @@ async function parseBookingRequest(userInput) {
   }
 }
 
-module.exports = { parseBookingRequest };
+module.exports = { parseBooking };
