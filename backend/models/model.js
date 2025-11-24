@@ -14,7 +14,7 @@
  */
 
 //getEvents() api
-const CLIENT_EVENTS_URL = process.env.CLIENT_EVENTS_URL;
+const CLIENT_EVENTS_URL = process.env.REACT_APP_CLIENT_EVENTS_URL;
 
 const GETEVENTSAPI = `${CLIENT_EVENTS_URL}`;
 
