@@ -1,56 +1,41 @@
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-async function parseBooking(userInput) {
-  try {
-    const response = await fetch(GROQ_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama3-8b-8192",  // free Groq model
-        messages: [
-          {
-            role: "user",
-            content: `
-            Extract the event name and number of tickets from the booking request.
-            USER INPUT: "${userInput}"
+const fetch =
+  globalThis.fetch ||
+  ((...args) =>
+    import("node-fetch").then(({ default: fetch }) => fetch(...args)));
 
-            Return ONLY valid JSON like this:
-            {"event": "Event Name", "tickets": 2}
-            `
-          }
-        ],
-        temperature: 0
-      })
-    });
 
-    if (!response.ok) {
-      throw new Error("Groq API request failed");
-    }
 
-    const data = await response.json();
+function parseBooking(userMessage) {
+  if (!userMessage) return null;
 
-    // Extract the assistant's response
-    const resultText = data.choices[0].message.content.trim();
+  const text = userMessage.toLowerCase().trim();
 
-    // Attempt to parse JSON
-    try {
-      return JSON.parse(resultText);
-    } catch (jsonError) {
-      console.error("Failed to parse JSON:", jsonError);
-      return null;
-    }
+  // 1. Extract ticket quantity (supports: 2, "2 tickets", "book 2", "need 2")
+  const quantityMatch = text.match(/(\d+)(?=\D|$)/);
+  const quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : null;
 
-  } catch (err) {
-    console.error("LLM parsing error:", err.message);
+  // 2. Extract event name (everything after "for" or "to")
+  const eventMatch = text.match(/(?:for|to)\s+(.+)/i);
+  let event = eventMatch ? eventMatch[1].trim() : null;
+
+  if (event) {
+    // Remove punctuation
+    event = event.replace(/["'.,!?]/g, "");
+
+    // Remove filler words
+    event = event.replace(/\b(please|thanks|thank you)\b/gi, "").trim();
+
+    // Fix doubled spaces caused by cleanup
+    event = event.replace(/\s+/g, " ");
+  }
+
+  if (!quantity || !event) {
     return null;
   }
 
-
-
-
+  return { event, quantity };
 }
 
 module.exports = { parseBooking };
