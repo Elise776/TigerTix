@@ -1,52 +1,35 @@
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-async function parseBooking(userInput) {
-  try {
-    const response = await fetch(GROQ_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama3-8b-8192",  // free Groq model
-        messages: [
-          {
-            role: "user",
-            content: `
-            Extract the event name and number of tickets from the booking request.
-            USER INPUT: "${userInput}"
+function parseBooking(userMessage) {
+  if (!userMessage) return null;
 
-            Return ONLY valid JSON like this:
-            {"event": "Event Name", "tickets": 2}
-            `
-          }
-        ],
-        temperature: 0
-      })
-    });
+  const text = userMessage.toLowerCase().trim();
 
-    if (!response.ok) {
-      throw new Error("Groq API request failed");
-    }
+  // 1. Extract number of tickets
+  const numberMatch = text.match(/(\d+)\s*(tickets?|tix)?/);
+  const quantity = numberMatch ? parseInt(numberMatch[1], 10) : null;
 
-    const data = await response.json();
+  // 2. Extract event name (text after "for" or "to")
+  const eventMatch = text.match(/(?:for|to)\s+(.+)/i);
+  let event = eventMatch ? eventMatch[1].trim() : null;
 
-    // Extract the assistant's response
-    const resultText = data.choices[0].message.content.trim();
+  // Clean up event name: remove trailing words like "please"
+  if (event) {
+    event = event.replace(/[^a-z0-9\s]/gi, "").trim();
+  }
 
-    // Attempt to parse JSON
-    try {
-      return JSON.parse(resultText);
-    } catch (jsonError) {
-      console.error("Failed to parse JSON:", jsonError);
-      return null;
-    }
-
-  } catch (err) {
-    console.error("LLM parsing error:", err.message);
+  // If missing info → return null
+  if (!quantity || !event) {
     return null;
   }
+
+  return {
+    event,
+    quantity
+  };
 }
+
+module.exports = { parseBooking };
+
 
 module.exports = { parseBooking };
