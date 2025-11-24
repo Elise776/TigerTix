@@ -5,25 +5,53 @@ const fetch =
   ((...args) =>
     import("node-fetch").then(({ default: fetch }) => fetch(...args)));
 
+
+
+const NUMBER_WORDS = {
+  "one": 1,
+  "two": 2,
+  "three": 3,
+  "four": 4,
+  "five": 5,
+  "six": 6,
+  "seven": 7,
+  "eight": 8,
+  "nine": 9,
+  "ten": 10,
+  "a": 1,
+  "an": 1
+};
+
 function parseBooking(userMessage) {
   if (!userMessage) return null;
 
   const text = userMessage.toLowerCase().trim();
 
-  // 1. Extract ticket quantity anywhere in the message
-  const quantityMatch = text.match(/(\d+)\s*(?:ticket|tickets)?/);
-  // FIX: If no number found (e.g. in confirmation "undefined"), default to 1 to prevent crash
-  // provided we find a valid event later.
+  // 1. Extract digit-based quantity
+  let quantityMatch = text.match(/(\d+)\s*(?:ticket|tickets)?/);
   let quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : null;
 
-  // 2. Extract event name after “for” or “to”
+  // 2. Extract written number quantity ("two tickets", "one ticket", "a ticket")
+  if (!quantity) {
+    const words = Object.keys(NUMBER_WORDS).join("|");
+    const wordMatch = text.match(new RegExp(`\\b(${words})\\b\\s*(?:ticket|tickets)?`));
+    if (wordMatch) {
+      quantity = NUMBER_WORDS[wordMatch[1]];
+    }
+  }
+
+  // 3. Default to 1 ticket if user did not specify quantity
+  if (!quantity) {
+    if (text.includes("ticket")) quantity = 1;
+  }
+
+  // 4. Extract event name after “for” or “to”
   let eventMatch = text.match(/(?:for|to)\s+(.+)/i);
   let event = eventMatch ? eventMatch[1].trim() : null;
 
-  // If event not detected (confirmation messages), fall back:
-  // FIX: Relaxed regex to handle "booking undefined for..." or other variations
+  // fallback if user confirms a message
   if (!event) {
-    eventMatch = text.match(/booking\s+(?:.*?)\s+for\s+(.+)/i);
+    eventMatch = text.match(/booking\s+\d*\s*(?:ticket|tickets)?\s*for\s+(.+)/i);
     event = eventMatch ? eventMatch[1].trim() : null;
   }
 
@@ -33,16 +61,9 @@ function parseBooking(userMessage) {
     event = event.replace(/\s+/g, " ").trim();
   }
 
-  // Safety Check
-  if (!event) {
+  // Still missing? Abort safely
+  if (!quantity || !event) {
     return null;
-  }
-
-  // FIX: If we have an event but quantity is still null (because the user input
-  // was "confirm booking undefined..."), default quantity to 1.
-  // This ensures the return object is valid and prevents "Invalid parse payload".
-  if (quantity === null) {
-    quantity = 1;
   }
 
   return { event, quantity };
