@@ -1,34 +1,56 @@
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-function parseBooking(userMessage) {
-  if (!userMessage) return null;
+// Node 18+ has fetch globally; fallback for older versions
+const fetch =
+  globalThis.fetch ||
+  ((...args) =>
+    import("node-fetch").then(({ default: fetch }) => fetch(...args)));
 
-  const text = userMessage.toLowerCase().trim();
+/**
+ * Parses a natural-language booking request into structured JSON.
+ * Example:
+ *   Input: "Book 2 tickets for Jazz Night"
+ *   Output: { event: "Jazz Night", tickets: 2 }
+ */
+async function parseBooking(userInput) {
+  if (!userInput) throw new Error("Invalid input text");
 
-  // 1. Extract ticket quantity (supports: 2, "2 tickets", "book 2", "need 2")
-  const quantityMatch = text.match(/(\d+)(?=\D|$)/);
-  const quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : null;
+  const prompt = `
+    Extract the event name and number of tickets from this booking request.
+    User request: "${userInput}"
+    Respond with ONLY valid JSON in this format:
+    {"event": "event name", "tickets": number}
+  `;
 
-  // 2. Extract event name (everything after "for" or "to")
-  const eventMatch = text.match(/(?:for|to)\s+(.+)/i);
-  let event = eventMatch ? eventMatch[1].trim() : null;
+  const res = await fetch(GROQ_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "llama3",
+      prompt,
+      stream: false,
+      options: { temperature: 0.1, num_predict: 150 },
+    }),
+  });
 
-  if (event) {
-    // Remove punctuation
-    event = event.replace(/["'.,!?]/g, "");
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
 
-    // Remove filler words
-    event = event.replace(/\b(please|thanks|thank you)\b/gi, "").trim();
+  const data = await res.json();
+  const generatedText = data.response || "";
 
-    // Fix doubled spaces caused by cleanup
-    event = event.replace(/\s+/g, " ");
-  }
+  // Extract JSON object from response
+  const jsonMatch = generatedText.match(/\{[^}]+\}/);
+  if (!jsonMatch) throw new Error("Could not find JSON in response");
 
-  if (!quantity || !event) {
-    return null;
-  }
+  const parsed = JSON.parse(jsonMatch[0]);
 
-  return { event, quantity };
+  if (!parsed.event || parsed.tickets === undefined)
+    throw new Error("Missing fields in parsed JSON");
+
+  return {
+    event: String(parsed.event).trim(),
+    tickets: parseInt(parsed.tickets, 10),
+  };
 }
 
 module.exports = { parseBooking };
