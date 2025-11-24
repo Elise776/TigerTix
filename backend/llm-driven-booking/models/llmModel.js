@@ -1,71 +1,46 @@
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const Groq = require("groq-sdk");
 
-const fetch =
-  globalThis.fetch ||
-  ((...args) =>
-    import("node-fetch").then(({ default: fetch }) => fetch(...args)));
+// Groq Client
+const client = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
 
-/**
- * Parses a natural-language booking request into structured JSON.
- */
-async function parseBooking(userInput) {
-  if (!userInput) throw new Error("Invalid input text");
-
-  const prompt = `
-    Extract the event name and the number of tickets from this booking request.
-    User request: "${userInput}"
-
-    Respond with ONLY JSON in this exact format:
-    {"event": "event name", "tickets": number}
-  `;
-
-  const res = await fetch(GROQ_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      // IMPORTANT: user must add GROQ_API_KEY in render
-      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "llama3-8b-8192", // Free Groq model
-      messages: [
-        { role: "system", content: "You extract booking details and return ONLY JSON." },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.1,
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`API error: ${res.status} – ${text}`);
-  }
-
-  const data = await res.json();
-
-  // Groq returns choices[0].message.content
-  const generatedText =
-    data.choices?.[0]?.message?.content?.trim() || "";
-
-  // Extract JSON
-  const jsonMatch = generatedText.match(/\{[\s\S]*?\}/);
-  if (!jsonMatch) throw new Error("Could not find JSON in response");
-
-  let parsed;
+async function parseBookingRequest(message) {
   try {
-    parsed = JSON.parse(jsonMatch[0]);
-  } catch (e) {
-    throw new Error("Invalid JSON received from LLM");
-  }
+    const prompt = `
+You extract booking information from text.
+Return JSON with: { "event": string, "quantity": number }.
+If missing info, return null values.
 
-  if (!parsed.event || parsed.tickets === undefined) {
-    throw new Error("Missing fields in parsed JSON");
-  }
+User message: "${message}"
+`;
 
-  return {
-    event: String(parsed.event).trim(),
-    tickets: parseInt(parsed.tickets, 10),
-  };
+    const response = await client.chat.completions.create({
+      model: "llama3-8b-8192",   // UPDATED MODEL
+      messages: [
+        { role: "system", content: "You extract booking intent from user messages." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.2
+    });
+
+    const content = response.choices[0].message.content.trim();
+
+    // Safe JSON parse
+    let data;
+    try {
+      data = JSON.parse(content);
+    } catch (err) {
+      console.error("JSON parse error:", err);
+      return null;
+    }
+
+    return data;
+
+  } catch (err) {
+    console.error("Groq API error:", err);
+    return null;
+  }
 }
 
-module.exports = { parseBooking };
+module.exports = { parseBookingRequest };
