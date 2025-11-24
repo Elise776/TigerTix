@@ -7,19 +7,20 @@ const fetch =
 
 
 
+// Map written numbers to digits
 const NUMBER_WORDS = {
-  "one": 1,
-  "two": 2,
-  "three": 3,
-  "four": 4,
-  "five": 5,
-  "six": 6,
-  "seven": 7,
-  "eight": 8,
-  "nine": 9,
-  "ten": 10,
-  "a": 1,
-  "an": 1
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  a: 1,
+  an: 1
 };
 
 function parseBooking(userMessage) {
@@ -27,46 +28,82 @@ function parseBooking(userMessage) {
 
   const text = userMessage.toLowerCase().trim();
 
-  // 1. Extract digit-based quantity
-  let quantityMatch = text.match(/(\d+)\s*(?:ticket|tickets)?/);
-  let quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : null;
+  // -----------------------------
+  // 1) Find ticket quantity
+  // -----------------------------
 
-  // 2. Extract written number quantity ("two tickets", "one ticket", "a ticket")
-  if (!quantity) {
+  let tickets = null;
+
+  // a) A digit: "book 2 tickets for concert"
+  const digitMatch = text.match(/(\d+)\s*(?:ticket|tickets)?/);
+  if (digitMatch) {
+    tickets = parseInt(digitMatch[1], 10);
+  }
+
+  // b) A word number: "book two tickets", "book a ticket"
+  if (!tickets) {
     const words = Object.keys(NUMBER_WORDS).join("|");
-    const wordMatch = text.match(new RegExp(`\\b(${words})\\b\\s*(?:ticket|tickets)?`));
+    const wordRegex = new RegExp(`\\b(${words})\\b\\s*(?:ticket|tickets)?`);
+    const wordMatch = text.match(wordRegex);
     if (wordMatch) {
-      quantity = NUMBER_WORDS[wordMatch[1]];
+      tickets = NUMBER_WORDS[wordMatch[1]];
     }
   }
 
-  // 3. Default to 1 ticket if user did not specify quantity
-  if (!quantity) {
-    if (text.includes("ticket")) quantity = 1;
+  // c) No number, but "ticket(s)" mentioned → assume 1
+  if (!tickets && text.includes("ticket")) {
+    tickets = 1;
   }
 
-  // 4. Extract event name after “for” or “to”
-  let eventMatch = text.match(/(?:for|to)\s+(.+)/i);
-  let event = eventMatch ? eventMatch[1].trim() : null;
+  // -----------------------------
+  // 2) Find event name
+  // -----------------------------
 
-  // fallback if user confirms a message
+  let event = null;
+
+  // a) After "for" or "to": "book 2 tickets for concert"
+  let eventMatch = text.match(/(?:for|to)\s+(.+)/i);
+  if (eventMatch) {
+    event = eventMatch[1].trim();
+  }
+
+  // b) Confirmation style: "confirm booking 2 tickets for concert"
   if (!event) {
     eventMatch = text.match(/booking\s+\d*\s*(?:ticket|tickets)?\s*for\s+(.+)/i);
-    event = eventMatch ? eventMatch[1].trim() : null;
+    if (eventMatch) {
+      event = eventMatch[1].trim();
+    }
   }
 
   if (event) {
+    // Clean up trailing punctuation/extra words
     event = event.replace(/["'.,!?]/g, "");
-    event = event.replace(/\b(please|thanks|thank you|confirm|booking)\b/gi, "");
+    event = event.replace(
+      /\b(please|thanks|thank you|confirm|booking)\b/gi,
+      ""
+    );
     event = event.replace(/\s+/g, " ").trim();
   }
 
-  // Still missing? Abort safely
-  if (!quantity || !event) {
+  // -----------------------------
+  // 3) Validate & normalize
+  // -----------------------------
+
+  if (!event || !tickets || isNaN(tickets) || tickets <= 0) {
     return null;
   }
 
-  return { event, quantity };
+  // IMPORTANT: expose the same values under multiple names
+  return {
+    // ticket count (many aliases)
+    tickets,                   // <--- most likely what your UI uses
+    numTickets: tickets,       // <--- common backend name
+    quantity: tickets,         // <--- if old code expects "quantity"
+
+    // event name (multiple aliases)
+    event,                     // <--- generic
+    eventName: event           // <--- if controller expects "eventName"
+  };
 }
 
 module.exports = { parseBooking };
