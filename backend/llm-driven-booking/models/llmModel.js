@@ -1,46 +1,56 @@
-const Groq = require("groq-sdk");
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-// Groq Client
-const client = new Groq({
-  apiKey: process.env.GROQ_API_KEY
-});
-
-async function parseBooking(message) {
+async function parseBooking(userInput) {
   try {
-    const prompt = `
-You extract booking information from text.
-Return JSON with: { "event": string, "quantity": number }.
-If missing info, return null values.
+    const response = await fetch(GROQ_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "llama3-8b-8192",  // free Groq model
+        messages: [
+          {
+            role: "user",
+            content: `
+            Extract the event name and number of tickets from the booking request.
+            USER INPUT: "${userInput}"
 
-User message: "${message}"
-`;
-
-    const response = await client.chat.completions.create({
-      model: "llama3-8b-8192",   // UPDATED MODEL
-      messages: [
-        { role: "system", content: "You extract booking intent from user messages." },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.2
+            Return ONLY valid JSON like this:
+            {"event": "Event Name", "tickets": 2}
+            `
+          }
+        ],
+        temperature: 0
+      })
     });
 
-    const content = response.choices[0].message.content.trim();
+    if (!response.ok) {
+      throw new Error("Groq API request failed");
+    }
 
-    // Safe JSON parse
-    let data;
+    const data = await response.json();
+
+    // Extract the assistant's response
+    const resultText = data.choices[0].message.content.trim();
+
+    // Attempt to parse JSON
     try {
-      data = JSON.parse(content);
-    } catch (err) {
-      console.error("JSON parse error:", err);
+      return JSON.parse(resultText);
+    } catch (jsonError) {
+      console.error("Failed to parse JSON:", jsonError);
       return null;
     }
 
-    return data;
-
   } catch (err) {
-    console.error("Groq API error:", err);
+    console.error("LLM parsing error:", err.message);
     return null;
   }
+
+
+
+
 }
 
 module.exports = { parseBooking };
