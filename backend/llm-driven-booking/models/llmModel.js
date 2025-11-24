@@ -1,56 +1,52 @@
-const OLLAMA_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-// Node 18+ has fetch globally; fallback for older versions
-const fetch =
-  globalThis.fetch ||
-  ((...args) =>
-    import("node-fetch").then(({ default: fetch }) => fetch(...args)));
-
-/**
- * Parses a natural-language booking request into structured JSON.
- * Example:
- *   Input: "Book 2 tickets for Jazz Night"
- *   Output: { event: "Jazz Night", tickets: 2 }
- */
 async function parseBooking(userInput) {
-  if (!userInput) throw new Error("Invalid input text");
+  try {
+    const response = await fetch(GROQ_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "llama3-8b-8192",  // free Groq model
+        messages: [
+          {
+            role: "user",
+            content: `
+            Extract the event name and number of tickets from the booking request.
+            USER INPUT: "${userInput}"
 
-  const prompt = `
-    Extract the event name and number of tickets from this booking request.
-    User request: "${userInput}"
-    Respond with ONLY valid JSON in this format:
-    {"event": "event name", "tickets": number}
-  `;
+            Return ONLY valid JSON like this:
+            {"event": "Event Name", "tickets": 2}
+            `
+          }
+        ],
+        temperature: 0
+      })
+    });
 
-  const res = await fetch(OLLAMA_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "llama3",
-      prompt,
-      stream: false,
-      options: { temperature: 0.1, num_predict: 150 },
-    }),
-  });
+    if (!response.ok) {
+      throw new Error("Groq API request failed");
+    }
 
-  if (!res.ok) throw new Error(`Ollama API error: ${res.status}`);
+    const data = await response.json();
 
-  const data = await res.json();
-  const generatedText = data.response || "";
+    // Extract the assistant's response
+    const resultText = data.choices[0].message.content.trim();
 
-  // Extract JSON object from response
-  const jsonMatch = generatedText.match(/\{[^}]+\}/);
-  if (!jsonMatch) throw new Error("Could not find JSON in response");
+    // Attempt to parse JSON
+    try {
+      return JSON.parse(resultText);
+    } catch (jsonError) {
+      console.error("Failed to parse JSON:", jsonError);
+      return null;
+    }
 
-  const parsed = JSON.parse(jsonMatch[0]);
-
-  if (!parsed.event || parsed.tickets === undefined)
-    throw new Error("Missing fields in parsed JSON");
-
-  return {
-    event: String(parsed.event).trim(),
-    tickets: parseInt(parsed.tickets, 10),
-  };
+  } catch (err) {
+    console.error("LLM parsing error:", err.message);
+    return null;
+  }
 }
 
 module.exports = { parseBooking };
