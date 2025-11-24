@@ -9,16 +9,14 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
-  },
-  credentials: true,
-  methods: "GET,POST,PUT,DELETE,OPTIONS"
+  origin: [
+    "https://tiger-tix-nine.vercel.app", 
+  ],
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true
 }));
+
+app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
