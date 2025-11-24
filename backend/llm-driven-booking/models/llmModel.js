@@ -5,31 +5,30 @@ function parseBooking(userMessage) {
 
   const text = userMessage.toLowerCase().trim();
 
-  // 1. Extract number of tickets
-  const numberMatch = text.match(/(\d+)\s*(tickets?|tix)?/);
-  const quantity = numberMatch ? parseInt(numberMatch[1], 10) : null;
+  // 1. Extract ticket quantity (supports: 2, "2 tickets", "book 2", "need 2")
+  const quantityMatch = text.match(/(\d+)(?=\D|$)/);
+  const quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : null;
 
-  // 2. Extract event name (text after "for" or "to")
+  // 2. Extract event name (everything after "for" or "to")
   const eventMatch = text.match(/(?:for|to)\s+(.+)/i);
   let event = eventMatch ? eventMatch[1].trim() : null;
 
-  // Clean up event name: remove trailing words like "please"
   if (event) {
-    event = event.replace(/[^a-z0-9\s]/gi, "").trim();
+    // Remove punctuation
+    event = event.replace(/["'.,!?]/g, "");
+
+    // Remove filler words
+    event = event.replace(/\b(please|thanks|thank you)\b/gi, "").trim();
+
+    // Fix doubled spaces caused by cleanup
+    event = event.replace(/\s+/g, " ");
   }
 
-  // If missing info → return null
   if (!quantity || !event) {
     return null;
   }
 
-  return {
-    event,
-    quantity
-  };
+  return { event, quantity };
 }
-
-module.exports = { parseBooking };
-
 
 module.exports = { parseBooking };
