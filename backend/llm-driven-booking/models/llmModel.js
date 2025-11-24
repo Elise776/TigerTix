@@ -12,25 +12,28 @@ function parseBooking(userMessage) {
 
   const text = userMessage.toLowerCase().trim();
 
-  // 1. Extract ticket quantity (supports: 2, "2 tickets", "book 2", "need 2")
-  const quantityMatch = text.match(/(\d+)(?=\D|$)/);
+  // 1. Extract ticket quantity anywhere in the message
+  const quantityMatch = text.match(/(\d+)\s*(?:ticket|tickets)?/);
   const quantity = quantityMatch ? parseInt(quantityMatch[1], 10) : null;
 
-  // 2. Extract event name (everything after "for" or "to")
-  const eventMatch = text.match(/(?:for|to)\s+(.+)/i);
+  // 2. Extract event name after “for” or “to”
+  let eventMatch = text.match(/(?:for|to)\s+(.+)/i);
   let event = eventMatch ? eventMatch[1].trim() : null;
 
-  if (event) {
-    // Remove punctuation
-    event = event.replace(/["'.,!?]/g, "");
-
-    // Remove filler words
-    event = event.replace(/\b(please|thanks|thank you)\b/gi, "").trim();
-
-    // Fix doubled spaces caused by cleanup
-    event = event.replace(/\s+/g, " ");
+  // If event not detected (confirmation messages), fall back:
+  // e.g. “confirm booking 2 for cpsc expo”
+  if (!event) {
+    eventMatch = text.match(/booking\s+\d*\s*(?:ticket|tickets)?\s*for\s+(.+)/i);
+    event = eventMatch ? eventMatch[1].trim() : null;
   }
 
+  if (event) {
+    event = event.replace(/["'.,!?]/g, "");
+    event = event.replace(/\b(please|thanks|thank you|confirm|booking)\b/gi, "");
+    event = event.replace(/\s+/g, " ").trim();
+  }
+
+  // Still missing? Abort safely.
   if (!quantity || !event) {
     return null;
   }
