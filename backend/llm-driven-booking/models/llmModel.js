@@ -5,7 +5,7 @@ const client = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
 
-async function parseBookingRequest(message) {
+async function parseBooking(message) {
   try {
     const prompt = `
 You extract booking information from text.
@@ -43,4 +43,4 @@ User message: "${message}"
   }
 }
 
-module.exports = { parseBookingRequest };
+module.exports = { parseBooking };
