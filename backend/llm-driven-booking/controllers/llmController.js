@@ -5,12 +5,25 @@ async function parseBookingRequest(req, res) {
     return res
       .status(400)
       .json({ parsed: false, message: "Missing input text" });
+
   try {
-    const result = await parseBooking(text);
-    res.json({ parsed: true, result });
+    const parsed = await parseBooking(text);
+
+    if (!parsed.success) {
+      return res.status(400).json({ parsed: false, message: parsed.error });
+    }
+
+    res.json({
+      parsed: true,
+      result: {
+        event: parsed.event,
+        tickets: parsed.tickets,
+      },
+    });
   } catch (err) {
     console.error("LLM parsing error:", err.message);
     res.status(400).json({ parsed: false, message: err.message });
   }
 }
+
 module.exports = { parseBookingRequest };
