@@ -18,11 +18,17 @@ Events through either manually buying the tickets or using our LLM agent to find
 
 ### Installation & Setup Instructions
 git clone https://github.com/your-username/TigerTix.git
+
 cd TigerTix
+
 cd frontend -> npm install -> npm start
+
 cd backend -> npm install-> npm start
+
 cd backend -> client-service -> npm start
+
 cd backend -> admin-service -> npm start
+
 cd backend -> llm-driven-booking -> npm start
 
 
