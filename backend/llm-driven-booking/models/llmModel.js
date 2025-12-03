@@ -19,7 +19,7 @@ const numberWords = {
 };
 
 function parseBooking(userText) {
-  const message = userText.trim();
+  const message = userText.toLowerCase().trim();
 
   let tickets = null;
 
