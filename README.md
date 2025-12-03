@@ -41,8 +41,8 @@ PORT=5000
 This is done so that we can use the JWT web tokens for user authentication.
 
 ### How to run regression tests
-npx jest tests/register.spec.js
-npx playwright test tests/bookTooMany.spec.js
+cd into jest tests -> npm run test
+cd into playwright tests -> npx playwright test
 
 
 ### Team Members, instructor, TAs, and roles
