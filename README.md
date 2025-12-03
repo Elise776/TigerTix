@@ -4,7 +4,7 @@ Events through either manually buying the tickets or using our LLM agent to find
 
 ### Tech Stack
 - **Frontend:** React.js  
-- **Backend:** Node.js, Express.js  
+- **Backend:** Express.js  
 - **Database:** SQLite  
 - **LLM API:** Grok LLM for chatbot functionality  
 - **Testing:** Jest for unit tests, Playwright for end-to-end tests 
